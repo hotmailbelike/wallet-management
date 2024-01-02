@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { IoWalletSharp } from "react-icons/io5";
 import Swal from "sweetalert2";
@@ -48,14 +47,41 @@ export default function WalletApp() {
 
   const populateNotes = () => {
     const { denominators } = getActiveCurrency();
+
     const notesObj = {};
 
     denominators.forEach((denominator) => (notesObj[denominator] = 0));
 
-    return notesObj;
+    setNotes(notesObj);
   };
 
-  const [notes, setNotes] = useState(populateNotes);
+  const [inputNumber, setInputNumber] = useState("");
+
+  const handleAddDenominator = () => {
+    const activeCurrency = getActiveCurrency();
+
+    // Check if the inputNumber is a valid number and not already in the denominators array
+    const newDenominator = parseInt(inputNumber, 10);
+    if (
+      !isNaN(newDenominator) &&
+      !activeCurrency.denominators.includes(newDenominator)
+    ) {
+      const updatedDenominators = [
+        ...activeCurrency.denominators,
+        newDenominator,
+      ];
+      const sortedDenominators = updatedDenominators.sort((a, b) => a - b); // Sort the array in ascending order
+      activeCurrency.denominators = sortedDenominators; // Update the denominators array
+      setInputNumber(""); // Clear the input field
+      setCurrencies([...currencies]); // Update the currencies state to trigger a re-render
+      setNotes({ ...notes, [newDenominator]: 0 });
+    } else {
+      // Handle duplicate or invalid input
+      alert("Please enter a unique valid number.");
+    }
+  };
+
+  const [notes, setNotes] = useState({});
 
   const calculateNotes = () => {
     let balance = 0;
@@ -156,9 +182,9 @@ export default function WalletApp() {
   //   setTotalBalance((prevBalance) => prevBalance - amountToSubtract);
   // };
 
-  // useEffect(() => {
-  //   setTotalBalance(calculateNotes());
-  // }, [notes]);
+  useEffect(() => {
+    populateNotes();
+  }, [currencies]);
 
   return (
     <div className="py-4 bg-gradient-to-r  from-[#6235f5] via-[#8e6df8] to-[#a994f5] md:h-screen pb-96 h-full">
@@ -188,7 +214,7 @@ export default function WalletApp() {
         <div className="notes-input-section flex flex-col items-center">
           {/* the columns should be aligned, it does not look good with different horizontal spacing */}
           {Object.keys(notes).map((note) => (
-            <div key={key}>
+            <div>
               {/* <button
                 className="bg-red-500 text-white px-2 py-1 rounded-md mr-2"
                 onClick={() => handleRemoveDenominator(note)}
@@ -219,6 +245,21 @@ export default function WalletApp() {
               </div>
             </div>
           ))}
+          <div className="flex flex-row items-center">
+            <input
+              type="number"
+              value={inputNumber}
+              onChange={(e) => setInputNumber(e.target.value)}
+              className="text-black rounded-md px-4 py-2 mt-8"
+              placeholder="Add denominator"
+            />
+            <button
+              onClick={handleAddDenominator}
+              className="bg-[#a086f6] mt-8 h-12 md:px-6 px-4 py-1 md:mx-6 mx-2 border-2 rounded-lg border-[#6235f5]"
+            >
+              Add
+            </button>
+          </div>
         </div>
 
         {/* <div className='buttons-section flex justify-center mt-6'>
