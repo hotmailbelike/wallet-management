@@ -18,7 +18,6 @@ export default function NoteInput({ addNote }) {
         placeholder="Denomination"
         value={denomination}
         onChange={(e) => {
-          console.log("🚀 ~ file: NoteInput.js:21 ~ NoteInput ~ e:", e);
           return setDenomination(e.target.value);
         }}
       />
